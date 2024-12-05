@@ -3,25 +3,28 @@
 from typing import Dict, List
 import csv
 import os
+import sqlite3
 
 
 def get_users() -> List[Dict]:
     """Get users from the existing database"""
-    # Get the directory where the script is located
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    csv_path = os.path.join(current_dir, "user_data.csv")
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM user_data")
     
     users = []
-    try:
-        with open(csv_path, "r") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                # Convert age to integer since CSV stores everything as strings
-                row['age'] = int(row['age'])
-                users.append(row)
-        return users
-    except FileNotFoundError:
-        raise FileNotFoundError(f"Database file not found at: {csv_path}")
+    for row in cursor.fetchall():
+        # Convert row to dictionary
+        user = {
+            'id': row[0],
+            'name': row[1],
+            'age': row[2],
+            'email': row[3]
+        }
+        users.append(user)
+    
+    conn.close()
+    return users
 
 
 def stream_users_in_batches(batch_size: int):
