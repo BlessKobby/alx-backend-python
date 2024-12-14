@@ -1,12 +1,5 @@
 #!/usr/bin/env python3
 
-# Define org_payload
-org_payload = {
-    "org_name": "google",
-    "org_id": 1342004,
-    # ... other necessary fields ...
-}
-
 TEST_PAYLOAD = [
   (
     {"repos_url": "https://api.github.com/orgs/google/repos"},
