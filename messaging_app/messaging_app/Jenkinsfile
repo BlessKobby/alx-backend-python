@@ -1,0 +1,53 @@
+pipeline {
+    agent any
+
+    environment {
+        // Set up Python environment variables
+        PYTHON_ENV = 'venv'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout the code from GitHub
+                git credentialsId: 'your-github-credentials-id', url: 'https://github.com/yourusername/messaging_app.git'
+            }
+        }
+
+        stage('Setup Python Environment') {
+            steps {
+                // Create a virtual environment
+                sh 'python3 -m venv $PYTHON_ENV'
+                // Activate the virtual environment and install dependencies
+                sh '''
+                    . $PYTHON_ENV/bin/activate
+                    pip install -r requirements.txt
+                '''
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                // Activate the virtual environment and run tests
+                sh '''
+                    . $PYTHON_ENV/bin/activate
+                    pytest --junitxml=report.xml
+                '''
+            }
+        }
+
+        stage('Publish Test Results') {
+            steps {
+                // Publish the test results
+                junit 'report.xml'
+            }
+        }
+    }
+
+    post {
+        always {
+            // Clean up the workspace
+            cleanWs()
+        }
+    }
+}
